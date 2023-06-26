@@ -1,0 +1,7 @@
+com\timelyserver\timelyserver\controller\ActivityController.class
+com\timelyserver\timelyserver\repository\ActivityRepository.class
+com\timelyserver\timelyserver\entity\UserDetail.class
+com\timelyserver\timelyserver\controller\UserController.class
+com\timelyserver\timelyserver\repository\UserRepository.class
+com\timelyserver\timelyserver\TimelyserverApplication.class
+com\timelyserver\timelyserver\entity\Activity.class
