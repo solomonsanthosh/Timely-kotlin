@@ -52,6 +52,12 @@ public class ActivityController {
         return activityRepository.findUncompleteActivities(id);
     }
 
+    @GetMapping("/api/allactivity/{id}")
+    List<Activity> getAllActivity(@PathVariable Long id) {
+
+        return activityRepository.findAllByUserId(id);
+    }
+
     @PutMapping("/api/activity/{id}/{email}")
     Optional<Activity> updateActivityStatus(@PathVariable Long id, @PathVariable String email) {
 
@@ -118,7 +124,7 @@ public class ActivityController {
             assignedBy = "self";
         }
 
- Activity newact = new Activity(body.get("title"),body.get("content"),userIdArrayList,parsedDate,assignedBy,body.get("file"));
+ Activity newact = new Activity(body.get("title"),body.get("content"),userIdArrayList,parsedDate,assignedBy,body.get("file"),"self");
 
 
 
@@ -170,31 +176,84 @@ if(file != null) {
     }
 
     @PostMapping("/api/assignactivity")
-    TeamTask assignActivity(@RequestBody Activity activity) {
+    TeamTask assignActivity(@RequestParam Map<String, String> body, @RequestParam(value = "file", required = false) MultipartFile file) {
+        ArrayList<String> userIdList = new ArrayList<>(Arrays.asList(body.get("userid").substring(1, body.get("userid").length() - 1).split(",")));
 
-        Activity newactivity = activity;
+
+        ArrayList<Long> userIdArrayList = new ArrayList<>();
+        for (String userId : userIdList) {
+            userIdArrayList.add(Long.parseLong(userId));
+        }
+
+        SimpleDateFormat originalDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        SimpleDateFormat targetDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+
+        Date parsedDate = null;
+        String formattedDateString;
+        try {
+            String dateValue = body.get("date");
+            if (dateValue != null) {
+                parsedDate = originalDateFormat.parse(dateValue);
+            }
+            formattedDateString = parsedDate != null ? targetDateFormat.format(parsedDate) : "";
+        } catch (ParseException e) {
+            // Handle parse exception
+            formattedDateString = ""; // or any default value
+        }
+
+
+        Activity newactivity = new Activity(body.get("title"),body.get("content"),userIdArrayList,parsedDate,body.get("assignedBy"),body.get("file"),body.get("type"));
+
+
+
         ArrayList<String> members = new ArrayList<>();
         ArrayList<String> status = new ArrayList<>();
-        activity.getUserid().forEach(id -> {
+
+        userIdArrayList.forEach(id -> {
             UserDetail user = userRepository.findUser(id);
             user.getEmail();
             members.add(user.getEmail());
             status.add("Not Completed");
 
+
+
             ArrayList<Long> idArray = new ArrayList<>();
             idArray.add(0, id);
             newactivity.setUserid(idArray);
-            newactivity.setAssignedBy(activity.getAssignedBy());
-            activityRepository.save(activity);
+            if(file != null) {
+                java.io.File folder = new java.io.File(FOLDER_PATH + newactivity.getUserid().get(0));
+                if (!folder.exists()) {
+
+                    folder.mkdirs();
+
+                }
+                try {
+                    Boolean aBoolean = FileUtil.uploadFileToFileSystem(file, newactivity.getTitle() + ".pdf", folder);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+
+                String pdf_file = host + newactivity.getUserid().get(0) + "/" + newactivity.getTitle() + "/file";
+
+
+
+
+                newactivity.setFile(pdf_file);
+            }
+            newactivity.setAssignedBy(newactivity.getAssignedBy());
+            activityRepository.save(newactivity);
 
         });
         TeamTask task = new TeamTask();
-        task.setTitle(activity.getTitle());
-        task.setContent(activity.getContent());
-        task.setDate(activity.getDate());
-        task.setAssignedby(activity.getAssignedBy());
+        String pdf_file = host + newactivity.getUserid().get(0) + "/" + newactivity.getTitle() + "/file";
+        task.setTitle(newactivity.getTitle());
+        task.setContent(newactivity.getContent());
+        task.setDate(newactivity.getDate());
+        task.setAssignedby(newactivity.getAssignedBy());
         task.setMembers(members);
         task.setStatus(status);
+        task.setFile(pdf_file);
         return teamTaskRepository.save(task);
     }
 

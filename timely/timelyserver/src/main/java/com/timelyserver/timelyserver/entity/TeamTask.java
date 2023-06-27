@@ -25,6 +25,15 @@ public class TeamTask {
     private ArrayList<String> members;
     private ArrayList<String> status;
     private String assignedby;
+
+    public String getFile() {
+        return file;
+    }
+
+    public void setFile(String file) {
+        this.file = file;
+    }
+
     public Long getId() {
         return id;
     }

@@ -34,7 +34,7 @@ public class Activity {
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
     private Date date = null;
 
-    public Activity(String title, String content, ArrayList<Long> userid, Date date,String assignedBy,String file) {
+    public Activity(String title, String content, ArrayList<Long> userid, Date date,String assignedBy,String file,String type) {
 
         this.title = title;
         this.content = content;
@@ -42,6 +42,7 @@ public class Activity {
         this.assignedBy = assignedBy;
         this.file = file;
         this.date = date;
+        this.type = type;
 
     }
 

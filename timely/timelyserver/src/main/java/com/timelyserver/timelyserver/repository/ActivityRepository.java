@@ -13,6 +13,9 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
 
     @Query(value = "SELECT * from activity A where A.userid[1] = ?1 and A.status = 'Not Completed' order by (case when A.pin then 1  else 3 end) asc", nativeQuery = true)
     List<Activity> findUncompleteActivities(Long userid);
+
+    @Query(value = "SELECT * from activity A where A.userid[1] = ?1", nativeQuery = true)
+    List<Activity> findAllByUserId(Long userid);
     
     @Query(value = "SELECT * from activity A where A.userid[1] = ?1", nativeQuery = true)
     Activity findActivity(Long id);
