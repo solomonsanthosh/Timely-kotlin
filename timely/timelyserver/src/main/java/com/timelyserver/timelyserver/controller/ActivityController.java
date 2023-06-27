@@ -38,7 +38,7 @@ public class ActivityController {
 
     @Value("${file.host}")
     private String host;
-    private final String FOLDER_PATH = "F:/appdevelopment/timely/timelyserver/src/main/java/com/timelyserver/timelyserver/files/";
+    private final String FOLDER_PATH = "/home/ubuntu/timely/timelyserver/src/main/java/com/timelyserver/timelyserver/files/";
     @Autowired
     private ActivityRepository activityRepository;
     @Autowired
@@ -135,10 +135,10 @@ if(file != null) {
         folder.mkdirs();
 
     }
-    Boolean aBoolean = FileUtil.uploadFileToFileSystem(file, newact.getTitle() + ".pdf", folder);
+    Boolean aBoolean = FileUtil.uploadFileToFileSystem(file, newact.getTitle().replaceAll("\\s", "") + ".pdf", folder);
 
 
-    String pdf_file = host + newact.getUserid().get(0) + "/" + newact.getTitle() + "/file";
+    String pdf_file = host + newact.getUserid().get(0) + "/" + newact.getTitle().replaceAll("\\s", "") + "/file";
 
 
 
@@ -157,7 +157,7 @@ if(file != null) {
 
     @GetMapping("/{userId}/{activityName}/file")
     public ResponseEntity<?> fetchPDF(@PathVariable Long userId, @PathVariable String activityName) throws IOException {
-        String filePath = FOLDER_PATH + userId + "/" + activityName + ".pdf";
+        String filePath = FOLDER_PATH + userId + "/" + activityName.replaceAll("\\s", "") + ".pdf";
 
 
         File file = new File(filePath);
@@ -228,13 +228,13 @@ if(file != null) {
 
                 }
                 try {
-                    Boolean aBoolean = FileUtil.uploadFileToFileSystem(file, newactivity.getTitle() + ".pdf", folder);
+                    Boolean aBoolean = FileUtil.uploadFileToFileSystem(file, newactivity.getTitle().replaceAll("\\s", "") + ".pdf", folder);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
 
 
-                String pdf_file = host + newactivity.getUserid().get(0) + "/" + newactivity.getTitle() + "/file";
+                String pdf_file = host + newactivity.getUserid().get(0) + "/" + newactivity.getTitle().replaceAll("\\s", "") + "/file";
 
 
 
@@ -246,7 +246,7 @@ if(file != null) {
 
         });
         TeamTask task = new TeamTask();
-        String pdf_file = host + newactivity.getUserid().get(0) + "/" + newactivity.getTitle() + "/file";
+        String pdf_file = host + newactivity.getUserid().get(0) + "/" + newactivity.getTitle().replaceAll("\\s", "") + "/file";
         task.setTitle(newactivity.getTitle());
         task.setContent(newactivity.getContent());
         task.setDate(newactivity.getDate());
